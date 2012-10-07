@@ -23,6 +23,27 @@ class Player():
         self.drag = False
         self.lines = []
 
+def drawEditMode(screen, list_of_players):
+    for player in list_of_players:
+        pygame.draw.rect( screen, player.color, player.rect)
+
+        for lineDict in player.lines:
+            for lineList in lineDict.itervalues():
+                for line in lineList:
+                        pygame.draw.line(screen, player.color, line.start, line.end)
+
+def drawPlaybackMode(screen, list_of_players, currentTime):
+    for player in list_of_players:
+        for lineDict in player.lines:
+            times = range(0, currentTime.time+1)
+            print times
+            for time in times:
+                if lineDict.has_key(time):
+                    print lineDict
+                    for line in lineDict[time]: 
+                        pygame.draw.line(screen, player.color, line.start, line.end)
+                    pygame.draw.rect( screen, player.color, Rect(line.end, (10,10)))
+
 pygame.init()
 
 size = (600,400)
@@ -98,22 +119,9 @@ while True:
 
         screen.blit(map, (0,0))
         if mode == 0:
-            for player in list_of_players:
-                pygame.draw.rect( screen, player.color, player.rect)
-
-                for lineDict in player.lines:
-                    for lineList in lineDict.itervalues():
-                        for line in lineList:
-                                pygame.draw.line(screen, player.color, line.start, line.end)
+            drawEditMode(screen, list_of_players)
         elif mode == 1:
-            for player in list_of_players:
-                for lineDict in player.lines:
-                    times = range(0, currentTime.time+1)
-                    print times
-                    for time in times:
-                        if lineDict.has_key(time):
-                            print lineDict
-                            for line in lineDict[time]: 
-                                pygame.draw.line(screen, player.color, line.start, line.end)
-                            pygame.draw.rect( screen, player.color, Rect(line.end, (10,10)))
-        pygame.display.update()
+            drawPlaybackMode(screen, list_of_players, currentTime)
+            
+
+        pygame.display.flip() 
