@@ -45,7 +45,21 @@ class Player():
                         line.draw(screen)
                     if Mode.playback == mode:
                         pygame.draw.rect(screen, self.color, Rect(line.end, player.size))
-                    
+
+    def addLine(self, timeStamp, start, end):
+        # check to make sure we have a list of lines first, if not init it
+        if self.lines:
+            # if the dictionary has the current time else add it ( may need to create our own object for this)
+            if self.lines[-1].has_key(timeStamp.time):
+                # Add the line
+                self.lines[-1][timeStamp.time].append(Line(start, end, self.color))
+            else:
+                # Create the list of lines and add the Line
+                self.lines[-1][timeStamp.time] = [Line(start, end, self.color)]
+        else:
+            self.lines.append( {timeStamp.time : [ Line(start, end, self.color) ] } )
+
+
 pygame.init()
 
 size = (600,400)
@@ -70,6 +84,7 @@ while True:
 
 
     for event in pygame.event.get():
+	print event
         if QUIT == event.type:
             pygame.quit()
             sys.exit()
@@ -77,6 +92,7 @@ while True:
             for player in list_of_players:
                 if player.drag:
                     player.rect.center = event.pos
+                    # should probably do this cleaner !TODO
                     player.lines[-1][currentTime.time][-1].end = player.rect.center
         elif MOUSEBUTTONDOWN == event.type:
 
@@ -85,17 +101,9 @@ while True:
                 if player.rect.collidepoint(event.pos):
                     player.drag = True
 
-                    # Create function to add lines
-
-                    if player.lines:
-                        if player.lines[-1].has_key(currentTime.time):
-                            #set lines here
-                            player.lines[-1][currentTime.time].append(Line(player.rect.center, player.rect.center, player.color))
-                        else:
-                            #create the dict and list
-                            player.lines[-1][currentTime.time] = [Line(player.rect.center, player.rect.center, player.color)]
-                    else:
-                        player.lines.append( {currentTime.time : [Line(player.rect.center, player.rect.center, player.color)] } )
+                    # Add the line to the Player
+                    player.addLine(currentTime, player.rect.center, player.rect.center)
+                    break
         elif MOUSEBUTTONUP == event.type:
             for player in list_of_players:
                 if player.drag:
